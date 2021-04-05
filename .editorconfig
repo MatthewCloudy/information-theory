@@ -1,6 +1,21 @@
 # Remove the line below if you want to inherit .editorconfig settings from higher directories
 root = true
 
+[*]
+
+# Indentation and spacing
+indent_style = space
+
+# New line preferences
+end_of_line = crlf
+insert_final_newline = true
+
+[*.{csproj,props}]
+
+# Indentation and spacing
+indent_size = 2
+tab_width = 2
+
 # C# files
 [*.cs]
 
@@ -8,12 +23,7 @@ root = true
 
 # Indentation and spacing
 indent_size = 4
-indent_style = space
 tab_width = 4
-
-# New line preferences
-end_of_line = crlf
-insert_final_newline = true
 
 #### .NET Coding Conventions ####
 
