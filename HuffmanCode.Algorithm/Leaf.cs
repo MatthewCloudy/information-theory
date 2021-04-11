@@ -4,16 +4,13 @@ namespace HuffmanCode.Algorithm
     {
         public Leaf(ISymbol symbol, int count)
         {
-            this.Symbol = symbol;
             this.Count = count;
 
             this.SymbolMapping = new SymbolMapping
             {
-                [this.Symbol] = new StringSymbol(string.Empty),
+                [symbol] = new StringSymbol(string.Empty),
             };
         }
-
-        public ISymbol Symbol { get; }
 
         public int Count { get; }
 

@@ -37,5 +37,22 @@ namespace HuffmanCode.Tests
 
             throw new System.Exception();
         }
+
+        [Theory]
+        [AlphabetData("szekspir.txt", SymbolLength = 2)]
+        public void Test2(string text, int symbolLength)
+        {
+            var alphabet = new AlphabetFromText(text, symbolLength);
+
+            var huffmanAlgorithm = new HuffmanAlgorithm();
+            var symbolMapping = huffmanAlgorithm.BuildSymbolMapping(alphabet);
+
+            foreach (var symbol in symbolMapping.Symbols)
+            {
+                this.testOutputHelper.WriteLine($"{symbol.Value} -> {symbolMapping[symbol].Value}");
+            }
+
+            throw new System.Exception();
+        }
     }
 }
