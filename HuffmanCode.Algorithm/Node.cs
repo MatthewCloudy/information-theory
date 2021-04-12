@@ -10,12 +10,12 @@
 
             foreach (var symbol in left.SymbolMapping.Symbols)
             {
-                this.symbolMapping[symbol] = new StringSymbol($"0{left.SymbolMapping[symbol].Value}");
+                this.symbolMapping[symbol] = new Symbol($"0{left.SymbolMapping[symbol].Value}");
             }
 
             foreach (var symbol in right.SymbolMapping.Symbols)
             {
-                this.symbolMapping[symbol] = new StringSymbol($"1{right.SymbolMapping[symbol].Value}");
+                this.symbolMapping[symbol] = new Symbol($"1{right.SymbolMapping[symbol].Value}");
             }
         }
 

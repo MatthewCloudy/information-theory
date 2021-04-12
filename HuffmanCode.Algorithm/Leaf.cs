@@ -8,7 +8,7 @@ namespace HuffmanCode.Algorithm
 
             this.SymbolMapping = new SymbolMapping
             {
-                [symbol] = new StringSymbol(string.Empty),
+                [symbol] = new Symbol(string.Empty),
             };
         }
 

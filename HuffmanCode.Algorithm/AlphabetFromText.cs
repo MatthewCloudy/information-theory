@@ -20,7 +20,7 @@ namespace HuffmanCode.Algorithm
                             .GroupBy(x => x.Index / symbolLength, x => x.Character)
                             .Select(x => new string(x.ToArray()))
                             .GroupBy(s => s)
-                            .ToDictionary(x => new StringSymbol(x.Key) as ISymbol, x => x.Count());
+                            .ToDictionary(x => new Symbol(x.Key) as ISymbol, x => x.Count());
         }
 
         public IEnumerable<ISymbol> Symbols => this.countBySymbol.Keys;
