@@ -15,12 +15,17 @@ namespace HuffmanCode.Algorithm
                 throw new InvalidOperationException();
             }
 
-            this.countBySymbol = text
+            this . countBySymbol = text
                             .Select((character, index) => (Character: character, Index: index))
                             .GroupBy(x => x.Index / symbolLength, x => x.Character)
                             .Select(x => new string(x.ToArray()))
                             .GroupBy(s => s)
                             .ToDictionary(x => new Symbol(x.Key) as ISymbol, x => x.Count());
+        }
+
+        public AlphabetFromText(string text, string separator)
+        {
+            this.countBySymbol = text.Split(separator).GroupBy(s => s).ToDictionary(x => new Symbol(x.Key) as ISymbol, x => x.Count());
         }
 
         public IEnumerable<ISymbol> Symbols => this.countBySymbol.Keys;
