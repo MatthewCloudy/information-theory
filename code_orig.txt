@@ -1,0 +1,421 @@
+namespace HuffmanCode . Algorithm
+ { 
+using System ;
+using System . Collections . Generic ;
+using System . Linq ;
+
+public class AlphabetFromText : IAlphabet
+ { 
+private readonly Dictionary < ISymbol , int > countBySymbol ;
+
+public AlphabetFromText ( string text , int symbolLength ) 
+ { 
+if ( text . Length % symbolLength != 0 ) 
+ { 
+throw new InvalidOperationException ( ) ;
+ } 
+
+this . countBySymbol = text
+ . Select ( ( character , index ) => ( Character : character , Index : index ) ) 
+ . GroupBy ( x => x . Index / symbolLength , x => x . Character ) 
+ . Select ( x => new string ( x . ToArray ( ) ) ) 
+ . GroupBy ( s => s ) 
+ . ToDictionary ( x => new Symbol ( x . Key ) as ISymbol , x => x . Count ( ) ) ;
+ } 
+
+public AlphabetFromText ( string text , string separator ) 
+ { 
+this . countBySymbol = text . Split ( separator ) . GroupBy ( s => s ) . ToDictionary ( x => new Symbol ( x . Key ) as ISymbol , x => x . Count ( ) ) ;
+ } 
+
+public IEnumerable < ISymbol > Symbols => this . countBySymbol . Keys ;
+
+public int this [ ISymbol symbol ] 
+ { 
+get => this . countBySymbol [ symbol ] ;
+set => this . countBySymbol [ symbol ] = value ;
+ } 
+ } 
+ } 
+
+namespace HuffmanCode . Algorithm
+ { 
+using System . Linq ;
+
+public class Encoder
+ { 
+public Encoder ( ISymbolMapping symbolMapping , IAlphabet alphabet ) 
+ { 
+this . SymbolMapping = symbolMapping ;
+this . Alphabet = alphabet ;
+ } 
+
+public ISymbolMapping SymbolMapping { get ; } 
+
+public IAlphabet Alphabet { get ; } 
+
+public string Encode ( string text ) 
+ { 
+string encodedText ;
+int symbolLength = this . Alphabet . Symbols . First ( ) . Value . Length ;
+encodedText = symbolLength == 1 
+? text . Select ( c => this . SymbolMapping [ new Symbol ( c . ToString ( ) ) ] . Value ) . Aggregate ( ( x , y ) => x + y ) 
+ : text
+ . Select ( ( character , index ) => ( Character : character , Index : index ) ) 
+ . GroupBy ( x => x . Index / symbolLength , x => x . Character ) 
+ . Select ( x => new string ( x . ToArray ( ) ) ) 
+ . Select ( s => this . SymbolMapping [ new Symbol ( s ) ] . Value ) . Aggregate ( ( x , y ) => x + y ) ;
+return encodedText ;
+ } 
+ } 
+ } 
+
+namespace HuffmanCode . Algorithm
+ { 
+using System . Collections . Generic ;
+
+public class FixedAlphabet : IAlphabet
+ { 
+private Dictionary < ISymbol , int > countBySymbol = new ( ) ;
+
+public IEnumerable < ISymbol > Symbols => this . countBySymbol . Keys ;
+
+public int this [ ISymbol symbol ] 
+ { 
+get => this . countBySymbol [ symbol ] ;
+set => this . countBySymbol [ symbol ] = value ;
+ } 
+ } 
+ } 
+
+namespace HuffmanCode . Algorithm
+ { 
+using System . Linq ;
+
+public class HuffmanAlgorithm : IHuffmanAlgorithm
+ { 
+public ISymbolMapping BuildSymbolMapping ( IAlphabet alphabet ) 
+ { 
+var huffmanTrees = alphabet . Symbols . Select ( s => new Leaf ( s , alphabet [ s ] ) as IHuffmanTree ) . ToList ( ) ;
+
+while ( huffmanTrees . Count > 1 ) 
+ { 
+var huffmanTreesToMerge =
+huffmanTrees
+ . OrderBy ( t => t . Count ) 
+ . Select ( ( tree , index ) => ( Tree : tree , IsMerged : index < 2 ) ) 
+ . ToLookup ( x => x . IsMerged , x => x . Tree ) ;
+
+huffmanTrees =
+huffmanTreesToMerge [ false ] . Append ( new Node ( huffmanTreesToMerge [ true ] . First ( ) , huffmanTreesToMerge [ true ] . ElementAt ( 1 ) ) ) . ToList ( ) ;
+ } 
+
+return huffmanTrees . Single ( ) . SymbolMapping ;
+ } 
+ } 
+ } 
+
+namespace HuffmanCode . Algorithm
+ { 
+using System . Collections . Generic ;
+
+public interface IAlphabet
+ { 
+IEnumerable < ISymbol > Symbols { get ; } 
+
+int this [ ISymbol symbol ] { get ; } 
+ } 
+ } 
+
+namespace HuffmanCode . Algorithm
+ { 
+public interface IHuffmanAlgorithm
+ { 
+ISymbolMapping BuildSymbolMapping ( IAlphabet alphabet ) ;
+ } 
+ } 
+
+
+namespace HuffmanCode . Algorithm
+ { 
+public interface IHuffmanTree
+ { 
+int Count { get ; } 
+
+ISymbolMapping SymbolMapping { get ; } 
+ } 
+ } 
+
+namespace HuffmanCode . Algorithm
+ { 
+public interface ISymbol
+ { 
+string Value { get ; } 
+ } 
+ } 
+
+namespace HuffmanCode . Algorithm
+ { 
+using System . Collections . Generic ;
+
+public interface ISymbolMapping
+ { 
+IEnumerable < ISymbol > Symbols { get ; } 
+
+ISymbol this [ ISymbol symbol ] { get ; } 
+ } 
+ } 
+
+namespace HuffmanCode . Algorithm
+ { 
+public class Leaf : IHuffmanTree
+ { 
+public Leaf ( ISymbol symbol , int count ) 
+ { 
+this . Count = count ;
+
+this . SymbolMapping = new SymbolMapping
+ { 
+ [ symbol ] = new Symbol ( string . Empty ) , 
+ } ;
+ } 
+
+public int Count { get ; } 
+
+public ISymbolMapping SymbolMapping { get ; } 
+ } 
+ } 
+
+namespace HuffmanCode . Algorithm
+ { 
+public class Node : IHuffmanTree
+ { 
+private readonly SymbolMapping symbolMapping = new ( ) ;
+
+public Node ( IHuffmanTree left , IHuffmanTree right ) 
+ { 
+this . Count = left . Count + right . Count ;
+
+foreach ( var symbol in left . SymbolMapping . Symbols ) 
+ { 
+this . symbolMapping [ symbol ] = new Symbol ( $ " 0 { left . SymbolMapping [ symbol ] . Value } " ) ;
+ } 
+
+foreach ( var symbol in right . SymbolMapping . Symbols ) 
+ { 
+this . symbolMapping [ symbol ] = new Symbol ( $ " 1 { right . SymbolMapping [ symbol ] . Value } " ) ;
+ } 
+ } 
+
+public int Count { get ; } 
+
+public ISymbolMapping SymbolMapping => this . symbolMapping ;
+ } 
+ } 
+
+namespace HuffmanCode . Algorithm
+ { 
+public record Symbol ( string Value ) : ISymbol
+ { 
+ } 
+ } 
+
+namespace HuffmanCode . Algorithm
+ { 
+using System . Collections . Generic ;
+
+public class SymbolMapping : ISymbolMapping
+ { 
+private Dictionary < ISymbol , ISymbol > mapping = new ( ) ;
+
+public IEnumerable < ISymbol > Symbols => this . mapping . Keys ;
+
+public ISymbol this [ ISymbol symbol ] 
+ { 
+get => this . mapping [ symbol ] ;
+set => this . mapping [ symbol ] = value ;
+ } 
+ } 
+ } 
+
+namespace HuffmanCode . Algorithm
+ { 
+using System . Collections . Generic ;
+using System . IO ;
+using System . Reflection ;
+using Xunit . Sdk ;
+
+public class AlphabetDataAttribute : DataAttribute
+ { 
+public AlphabetDataAttribute ( string textFilePath ) 
+ { 
+this . TextFilePath = textFilePath ;
+ } 
+
+public string TextFilePath { get ; } 
+
+public int SymbolLength { get ; set ; } = 1 ;
+
+public override IEnumerable < object [ ] > GetData ( MethodInfo testMethod ) 
+ { 
+yield return new object [ ] 
+ { 
+File . ReadAllText ( this . TextFilePath ) , 
+this . SymbolLength , 
+ } ;
+ } 
+ } 
+ } 
+
+namespace HuffmanCode . Tests
+ { 
+using System . Collections . Generic ;
+using System . IO ;
+using System . Threading . Tasks ;
+using HuffmanCode . Algorithm ;
+using Xunit ;
+using Xunit . Abstractions ;
+
+public class Sandbox
+ { 
+private ITestOutputHelper testOutputHelper ;
+
+public Sandbox ( ITestOutputHelper testOutputHelper ) 
+ { 
+this . testOutputHelper = testOutputHelper ;
+ } 
+
+ [ Theory ] 
+ [ AlphabetData ( " chapter 1 . txt " ) ] 
+public async Task Test1 ( string text , int symbolLength ) 
+ { 
+var alphabet = new AlphabetFromText ( text , symbolLength ) ;
+
+var huffmanAlgorithm = new HuffmanAlgorithm ( ) ;
+var symbolMapping = huffmanAlgorithm . BuildSymbolMapping ( alphabet ) ;
+
+foreach ( var symbol in symbolMapping . Symbols ) 
+ { 
+this . testOutputHelper . WriteLine ( $ " { symbol . Value } - > { symbolMapping [ symbol ] . Value } " ) ;
+ } 
+
+var encoder = new Encoder ( symbolMapping , alphabet ) ;
+
+await File . WriteAllLinesAsync ( " chapter 1 _ encoded _ 1 . txt " , new List < string > ( ) { encoder . Encode ( text ) } ) ;
+
+throw new System . Exception ( ) ;
+ } 
+
+ [ Theory ] 
+ [ AlphabetData ( " chapter 1 _ lowercase _ without _ spaces . txt " ) ] 
+public async Task Test2 ( string text , int symbolLength ) 
+ { 
+var alphabet = new AlphabetFromText ( text . ToLower ( ) , symbolLength ) ;
+
+var huffmanAlgorithm = new HuffmanAlgorithm ( ) ;
+var symbolMapping = huffmanAlgorithm . BuildSymbolMapping ( alphabet ) ;
+
+foreach ( var symbol in symbolMapping . Symbols ) 
+ { 
+this . testOutputHelper . WriteLine ( $ " { symbol . Value } - > { symbolMapping [ symbol ] . Value } " ) ;
+ } 
+
+var encoder = new Encoder ( symbolMapping , alphabet ) ;
+
+await File . WriteAllLinesAsync ( " chapter 1 _ normalized _ encoded _ 1 . txt " , new List < string > ( ) { encoder . Encode ( text . ToLower ( ) ) } ) ;
+
+throw new System . Exception ( ) ;
+ } 
+
+ [ Theory ] 
+ [ AlphabetData ( " chapter 1 _ lowercase _ without _ spaces . txt " ) ] 
+public async Task Test3 ( string text , int symbolLength ) 
+ { 
+var englishAlphabet = new FixedAlphabet
+ { 
+ [ new Symbol ( " a " ) ] = 8 2 0 0 , 
+ [ new Symbol ( " b " ) ] = 1 5 0 0 , 
+ [ new Symbol ( " c " ) ] = 2 8 0 0 , 
+ [ new Symbol ( " d " ) ] = 4 3 0 0 , 
+ [ new Symbol ( " e " ) ] = 1 3 0 0 0 , 
+ [ new Symbol ( " f " ) ] = 2 2 0 0 , 
+ [ new Symbol ( " g " ) ] = 2 0 0 0 , 
+ [ new Symbol ( " h " ) ] = 6 1 0 0 , 
+ [ new Symbol ( " i " ) ] = 7 0 0 0 , 
+ [ new Symbol ( " j " ) ] = 1 5 0 , 
+ [ new Symbol ( " k " ) ] = 7 7 0 , 
+ [ new Symbol ( " l " ) ] = 4 0 0 0 , 
+ [ new Symbol ( " m " ) ] = 2 4 0 0 , 
+ [ new Symbol ( " n " ) ] = 6 7 0 0 , 
+ [ new Symbol ( " o " ) ] = 7 5 0 0 , 
+ [ new Symbol ( " p " ) ] = 1 9 0 0 , 
+ [ new Symbol ( " q " ) ] = 9 5 , 
+ [ new Symbol ( " r " ) ] = 6 0 0 0 , 
+ [ new Symbol ( " s " ) ] = 6 3 0 0 , 
+ [ new Symbol ( " t " ) ] = 9 1 0 0 , 
+ [ new Symbol ( " u " ) ] = 2 8 0 0 , 
+ [ new Symbol ( " v " ) ] = 9 8 0 , 
+ [ new Symbol ( " w " ) ] = 2 4 0 0 , 
+ [ new Symbol ( " x " ) ] = 1 5 0 , 
+ [ new Symbol ( " y " ) ] = 2 0 0 0 , 
+ [ new Symbol ( " z " ) ] = 7 4 , 
+ } ;
+
+var huffmanAlgorithm = new HuffmanAlgorithm ( ) ;
+var symbolMapping = huffmanAlgorithm . BuildSymbolMapping ( englishAlphabet ) ;
+
+foreach ( var symbol in symbolMapping . Symbols ) 
+ { 
+this . testOutputHelper . WriteLine ( $ " { symbol . Value } - > { symbolMapping [ symbol ] . Value } " ) ;
+ } 
+
+var encoder = new Encoder ( symbolMapping , englishAlphabet ) ;
+
+await File . WriteAllLinesAsync ( " chapter 1 _ normalized _ encoded _ english _ 1 . txt " , new List < string > ( ) { encoder . Encode ( text . ToLower ( ) ) } ) ;
+
+throw new System . Exception ( ) ;
+ } 
+
+ [ Theory ] 
+ [ AlphabetData ( " code . txt " ) ] 
+public async Task Test4 ( string text , int symbolLength ) 
+ { 
+var alphabet = new AlphabetFromText ( text , symbolLength ) ;
+
+var huffmanAlgorithm = new HuffmanAlgorithm ( ) ;
+var symbolMapping = huffmanAlgorithm . BuildSymbolMapping ( alphabet ) ;
+
+foreach ( var symbol in symbolMapping . Symbols ) 
+ { 
+this . testOutputHelper . WriteLine ( $ " { symbol . Value } - > { symbolMapping [ symbol ] . Value } " ) ;
+ } 
+
+var encoder = new Encoder ( symbolMapping , alphabet ) ;
+
+await File . WriteAllLinesAsync ( " code _ encoded _ 1 . txt " , new List < string > ( ) { encoder . Encode ( text ) } ) ;
+
+throw new System . Exception ( ) ;
+ } 
+
+ [ Theory ] 
+ [ AlphabetData ( " code . txt " ) ] 
+public async Task Test 5 ( string text , int symbolLength ) 
+ { 
+var alphabet = new AlphabetFromText ( text , " " ) ;
+
+var huffmanAlgorithm = new HuffmanAlgorithm ( ) ;
+var symbolMapping = huffmanAlgorithm . BuildSymbolMapping ( alphabet ) ;
+
+foreach ( var symbol in symbolMapping . Symbols ) 
+ { 
+this . testOutputHelper . WriteLine ( $ " { symbol . Value } - > { symbolMapping [ symbol ] . Value } " ) ;
+ } 
+
+var encoder = new Encoder ( symbolMapping , alphabet ) ;
+
+await File . WriteAllLinesAsync ( " code _ encoded _ block . txt " , new List < string > ( ) { encoder . Encode ( text ) } ) ;
+
+throw new System . Exception ( ) ;
+ } 
+ } 
+ } 
