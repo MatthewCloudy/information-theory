@@ -1,6 +1,0 @@
-function [output] = match(codebook,input)
-    correlations = zeros(1, size(codebook,2));
-    for i = 1:size(codebook,2)
-        correlations(i) = xcorr(
-    end
-end
