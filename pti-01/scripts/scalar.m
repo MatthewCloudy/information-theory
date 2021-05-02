@@ -1,1 +1,0 @@
-% Kwantyzacja skalarna
