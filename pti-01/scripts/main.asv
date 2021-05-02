@@ -1,0 +1,5 @@
+filepath = "pti-01/skryba/monolog-skryby-oryginal.mp3";
+%filepath = "pti-01/skryba/monolog-skryby-oryginal.mp3";
+splits = [1000, 100, 50, 10, 5
+
+generate_sounds(filepath,)
