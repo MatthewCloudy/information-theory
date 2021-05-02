@@ -1,0 +1,7 @@
+function [signal_quantized, mse] = scalar_q(signal ,n)
+    [partition, codebook] = podzialy(sygnal_1_kanal, n);
+    scalar_q = dsp.ScalarQuantizerEncoder(BoundaryPoints = partition, CodewordOutputPort = true(1), Codebook = codebook);
+    [indexes, sygnal_po_kwantyzacji] = scalar_q(sygnal_1_kanal);
+
+end
+
