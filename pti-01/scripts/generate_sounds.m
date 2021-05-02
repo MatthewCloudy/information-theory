@@ -22,6 +22,9 @@ nazwa_pliku = split(filepath,"/");
 nazwa_pliku = split(nazwa_pliku(end), ".");
 nazwa_pliku = nazwa_pliku(1);
 
+% Utworzenie folderu plots w podanej ścieżce wyjściowej
+plots_path = destination + "/plots";
+
 % Konwersja pliku na sygnał
 [sygnal, probkowanie] = audioread(filepath);
 disp("Probkowanie: " + probkowanie + "Hz")
@@ -41,6 +44,11 @@ for n = splits
         [sygnal_wyjsciowy(:, i), mse(i)] = q_method(sygnal_kanal, n);
         
     end
+    
+    % Wygeneruj wykres dla jednego kanału
+    generate_plots(sygnal(:, 1), sygnal_wyjsciowy(:, 1), (probkowanie):(round(probkowanie*1.249)), n, method_name, plots_path)
+    
+    % Zapisz dane i plik wyśjściowy
     vector_mse(j) = mean(mse);
     filename = destination + "/" + method_name + "-" + nazwa_pliku + n + ".wav"
     audiowrite(filename, sygnal_wyjsciowy, probkowanie);
