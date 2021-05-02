@@ -1,10 +1,11 @@
-function [vector_mse] = generate_sounds(filepath, splits, q_method, destination)
+function [vector_mse] = generate_sounds(filepath, splits, q_method, destination, method_name)
 %GENERATE_Q_SIGNAL
 %   Argumenty:
 %       - filepath - ścieżka do pliku, który mamy potraktować kwantyzacją
 %       - splits - wektor liczb podziałów, np [1000, 100, 50, 10 5]
 %       - q_method - funkcja (signal, n) -> [signal_quantized, mse]
 %       - destination - ścieżka do folderu, w którym mają się pojawiać pliki
+%       - method_name - nazwa metody którą kwantyzujemy, np "scalar"
 %       dźwiekowe wyprodukowane po kwantyzacji
 %   Zwraca:
 %       - vector_mse - wektor mse które wyjdą z q_method, w kolejności
@@ -14,6 +15,7 @@ function [vector_mse] = generate_sounds(filepath, splits, q_method, destination)
 
 % Inicjacja wektora na mse
 vector_mse = splits;
+mse = zeros(1, 2);
 
 % Wydobycie nazwy pliku bez rozszerzenia
 nazwa_pliku = split(filepath,"/");
@@ -22,10 +24,10 @@ nazwa_pliku = nazwa_pliku(1);
 
 % Konwersja pliku na sygnał
 [sygnal, probkowanie] = audioread(filepath);
-display("Probkowanie: " + probkowanie + "Hz")
+disp("Probkowanie: " + probkowanie + "Hz")
 
 sygnal_wyjsciowy = sygnal; % Inicjacja wektora na sygnaly po kwantyzacji
-
+disp("Utworzone pliki:")
 % Dla każdej liczby podziałów
 j = 0; 
 for n = splits
@@ -36,9 +38,11 @@ for n = splits
         sygnal_kanal = sygnal(:, i);
         
         % Wykonujemy metodę i zapisujemy oba kanaly po kwantyzacji
-        [sygnal_wyjsciowy(:, i), vectror_mse(j)] = q_method(sygnal_kanal, n);
+        [sygnal_wyjsciowy(:, i), mse(i)] = q_method(sygnal_kanal, n);
+        
     end
-    filename = destination + "/" + nazwa_pliku + n + ".wav"
+    vector_mse(j) = mean(mse);
+    filename = destination + "/" + method_name + "-" + nazwa_pliku + n + ".wav"
     audiowrite(filename, sygnal_wyjsciowy, probkowanie);
 end
 
