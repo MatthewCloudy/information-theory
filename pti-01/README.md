@@ -8,11 +8,7 @@ Opisy plików:
   * `main.m` - <- OBCZAIĆ - główny skrypt który wygeneruje nam tabelki z danymi oraz pliki po kwantyzacji
   * `generate_sounds.m` - <- OBCZAIĆ - główna funkcja - podejrzeć komentarz żeby wiedzieć co robi, co przyjmuje, co zwraca
 * scripts/scalar - folder Michała
-<<<<<<< HEAD
   * `scalar_q.m` - <- OBCZAIĆ - takie argumenty na wejściu i wyjścu powinny mieć pozostałe funkcje, potem to ułatwi zrobić wszystko naraz w `generate_sounds.m`
-=======
-  * `scalar_q` - <- OBCZAIĆ - takie argumenty na wejściu i wyjścu powinny mieć pozostałe funkcje, potem to ułatwi zrobić wszystko naraz w `generate_sounds.m`
->>>>>>> 9f88f6c... Update README.md
   * `podzialy.m` - funckja pomocnicza  
   * `scalar.m` - gównonotatki, wszytsko co trzeba przeniosłem do innych plików 
 tu miejsce na Wasze opisy co się dzieje
