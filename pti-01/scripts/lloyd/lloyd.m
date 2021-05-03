@@ -5,7 +5,8 @@ rozszerzenie = ".mp3";
 [sygnal, probkowanie] = audioread(sciezka + rozszerzenie);
 sygnal_1_kanal = sygnal(:, 1);
 
-% Wygenerowanie podzialow na n przedzialow
+% Wygenerowanie podzialow na n przedzialow 
+% (funkcja lloyds() z pakietu Communications Toolbox)
 n = 10;
 [partition, codebook] = lloyds(sygnal_1_kanal, n);
 partition=[min(sygnal_1_kanal) partition min(sygnal_1_kanal)];
