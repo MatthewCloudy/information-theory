@@ -8,9 +8,10 @@ function [signal_quantized, mse] = scalar_q(signal, n)
 %       - mse - błąd średniokwadratowy sygnału po kwantyzacji względem
 %       oryginalnego
 
-    [partition, codebook] = podzialy(signal, n);
-    scalar_q = dsp.ScalarQuantizerEncoder(BoundaryPoints = partition, CodewordOutputPort = true(1), Codebook = codebook);
-    [~, signal_quantized] = scalar_q(signal);
-    mse = mean((signal - signal_quantized).^2);
+[partition, codebook] = podzialy(signal, n);
+scalar_q = dsp.ScalarQuantizerEncoder(BoundaryPoints = partition, CodewordOutputPort = true(1), Codebook = codebook);
+[~, signal_quantized] = scalar_q(signal);
+mse = mean((signal - signal_quantized).^2);
+
 end
 
