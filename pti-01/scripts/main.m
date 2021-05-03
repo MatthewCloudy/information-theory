@@ -19,7 +19,7 @@ mse_table = zeros(length(splits), length(functions));
 for i = 1:length(functions)
     disp("Evaluating function: " + function_names(i))
     % ta funckja generuje pliki muzyczne i wykresy
-    v_mse = generate_sounds(oryginal, splits, functions{i}, output, function_names(i));
+    v_mse = generate_all(oryginal, splits, functions{i}, output, function_names(i), false, false);
     mse_table(:, i) = v_mse;
 end
 

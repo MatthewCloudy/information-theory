@@ -1,4 +1,4 @@
-function [vector_mse] = generate_sounds(filepath, splits, q_method, destination, method_name)
+function [vector_mse] = generate_all(filepath, splits, q_method, destination, method_name, generate_plots, generate_audio)
 %GENERATE_Q_SIGNAL
 %   Argumenty:
 %       - filepath - ścieżka do pliku, który mamy potraktować kwantyzacją
@@ -7,6 +7,8 @@ function [vector_mse] = generate_sounds(filepath, splits, q_method, destination,
 %       - destination - ścieżka do folderu, w którym mają się pojawiać pliki
 %       - method_name - nazwa metody którą kwantyzujemy, np "scalar"
 %       dźwiekowe wyprodukowane po kwantyzacji
+%       - generate_plots - zmienna logiczna - czy generować wykresy?
+%       - generate_audio - zmienna logiczna - czy generować pliki audio?
 %   Zwraca:
 %       - vector_mse - wektor mse które wyjdą z q_method, w kolejności
 %       odpowiadającej kolejności z splits
@@ -45,12 +47,18 @@ for n = splits
         
     end
     
+    % Zapisz uzyskane mse jako średnia mse dwóch kanałów
+    vector_mse(j) = mean(mse);
+    
     % Wygeneruj wykres dla jednego kanału
-    generate_plots(sygnal(:, 1), sygnal_wyjsciowy(:, 1), (probkowanie):(round(probkowanie*1.249)), n, method_name, plots_path)
+    if generate_plots
+        generate_plots(sygnal(:, 1), sygnal_wyjsciowy(:, 1), (probkowanie):(round(probkowanie*1.249)), n, method_name, plots_path)
+    end
     
     % Zapisz dane i plik wyśjściowy
-    vector_mse(j) = mean(mse);
-    filename = destination + "/" + method_name + "-" + nazwa_pliku + n + ".wav"
-    audiowrite(filename, sygnal_wyjsciowy, probkowanie);
+    if generate_audio
+        filename = destination + "/" + method_name + "-" + nazwa_pliku + n + ".wav"
+        audiowrite(filename, sygnal_wyjsciowy, probkowanie);
+    end
 end
 
