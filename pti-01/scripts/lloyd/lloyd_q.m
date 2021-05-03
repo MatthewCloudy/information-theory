@@ -10,7 +10,7 @@ function [signal_quantized, mse] = lloyd_q(signal, n)
 
 % Funkcja lloyds() z pakietu Communications Toolbox
 [partition, codebook] = lloyds(signal, n);
-partition=[min(sygnal_1_kanal) partition min(sygnal_1_kanal)];
+partition=[min(signal) partition min(signal)];
 
 % Kwantyzacja i obliczenie błędu
 lloyd_q = dsp.ScalarQuantizerEncoder("BoundaryPoints", partition,...
