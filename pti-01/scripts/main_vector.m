@@ -7,8 +7,8 @@ addpath 'pti-01/scripts/vector'
 % Ustawienie danych wejsciowych
 oryginal = "pti-01/skryba/monolog-skryby-oryginal.mp3";
 kobiecy = "pti-01/skryba/monolog-skryby-k.mp3";
-codes = [1000, 100, 50, 10, 5];
-vector_len = [1000, 500, 200];
+codes = [2000, 1000, 500];
+vector_len = [200];
 functions = {@vector_q};
 function_names = ["vector"];
 output = "pti-01/scripts/vector/outputs";
