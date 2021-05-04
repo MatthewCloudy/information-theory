@@ -31,7 +31,7 @@ plots_path = destination + "/plots";
 [sygnal, probkowanie] = audioread(filepath);
 disp("Probkowanie: " + probkowanie + "Hz")
 
-sygnal_wyjsciowy = sygnal; % Inicjacja wektora na sygnaly po kwantyzacji
+%sygnal_wyjsciowy = sygnal; % Inicjacja wektora na sygnaly po kwantyzacji
 disp("Utworzone pliki:")
 % Dla każdej liczby podziałów
 j = 0; 
