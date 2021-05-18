@@ -6,11 +6,11 @@ from sklearn.decomposition import PCA
 img = mpimg.imread("pic.png")
 
 def compress(img, n_comps):
-    img1 = np.reshape(img, (img.shape[0], img.shape[1]*img.shape[2]))
+    img1 = np.reshape(img, (img.shape[0] * img.shape[1], img.shape[2]), 'C')
     pca = PCA(n_comps).fit(img1)
     img_pca = pca.transform(img1)
     img2 = pca.inverse_transform(img_pca) 
-    img_compressed = np.reshape(img2, (img.shape[0], img.shape[1], img.shape[2]))
+    img_compressed = np.reshape(img2, (img.shape[0], img.shape[1], img.shape[2]), 'C')
     return img_compressed, pca, img_pca
 
 def size_compare(img, img_compressed, pca, img_pca):
