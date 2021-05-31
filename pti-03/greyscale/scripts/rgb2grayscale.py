@@ -2,8 +2,13 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import numpy as np
 from sklearn.decomposition import PCA
+import os
+import sys
 
-img = mpimg.imread("pic.png")
+filename = sys.argv[1]
+filenameshort = os.path.splitext(filename)[0].replace("originals","grey")
+img = mpimg.imread(filename)
+img_copy = np.array(img)
 
 def compress(img, n_comps):
     img1 = np.reshape(img, (img.shape[0] * img.shape[1], img.shape[2]), 'F')
@@ -55,11 +60,13 @@ grey = np.dstack((grey_img, grey_img, grey_img))
 
 plt.axis(False)
 plt.imshow(grey)
+plt.savefig(filenameshort + "grey_pca.png", bbox_inches='tight')
 
-#grey_img_orig = convert_to_greyscale(img)
-#grey_orig = np.dstack((grey_img_orig, grey_img_orig, grey_img_orig))
+grey_img_orig = convert_to_greyscale(img_copy)
+grey_orig = np.dstack((grey_img_orig, grey_img_orig, grey_img_orig))
 
-#plt.axis(False)
-#plt.imshow(grey_orig)
+plt.axis(False)
+plt.imshow(grey_orig)
+plt.savefig(filenameshort + "grey_orig.png", bbox_inches='tight')
 
 size_compare(img, grey_img, pca, img_pca)
