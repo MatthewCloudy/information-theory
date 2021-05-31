@@ -19,4 +19,4 @@ function ConvertImage{
 };
 ConvertImage
 
-#Get-ChildItem "$PSScriptRoot/../originals/*.png" | ForEach-Object { python rgb2grayscale.py $_ }
+Get-ChildItem "$PSScriptRoot/../originals/*.png" | ForEach-Object { python rgb2grayscale.py $_ }
