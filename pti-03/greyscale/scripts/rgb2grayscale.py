@@ -10,12 +10,15 @@ filenameshort = os.path.splitext(filename)[0].replace("originals","grey")
 img = mpimg.imread(filename)
 img_copy = np.array(img)
 
-def compress(img, n_comps):
+def compress(img, n_comps, all_colors=False):
     img1 = np.reshape(img, (img.shape[0] * img.shape[1], img.shape[2]), 'F')
     pca = PCA(n_comps).fit(img1)
     img_pca = pca.transform(img1)
-    img2 = pca.inverse_transform(img_pca) 
-    img_compressed = np.reshape(img2, (img.shape[0], img.shape[1], img.shape[2]), 'F')
+    if all_colors == True:
+        img2 = pca.inverse_transform(img_pca)
+        img_compressed = np.reshape(img2, (img.shape[0], img.shape[1], img.shape[2]), 'F')
+    else:
+        img_compressed = np.reshape(img_pca, (img.shape[0], img.shape[1]), 'F')
     return img_compressed, pca, img_pca
 
 def size_compare(img, img_compressed, pca, img_pca):
@@ -30,43 +33,46 @@ def size_compare(img, img_compressed, pca, img_pca):
     print("\nCompressed image ratio to original: ")
     print(compressed_size / original_size)
 
-def convert_to_greyscale(img):
+def convert_to_greyscale(img, all_colors=False):
     grey_img = np.zeros((img.shape[0], img.shape[1]))
+    #img = np.array(img, ndmin=3)
     for x in range(img.shape[0]):
         for y in range(img.shape[1]):
             grey_img[x,y] = 0
             for z in range(img.shape[2]):
-                if img[x,y,z] <= 0.04045:
-                    img[x,y,z] /= 12.92
+                if all_colors == True:
+                    if img[x,y,z] <= 0.04045:
+                        img[x,y,z] /= 12.92
+                    else:
+                        img[x,y,z] = ((img[x,y,z] + 0.055)/1.055)**2.4
+                    if z == 0:
+                        img[x,y,z] *= 0.2126
+                    elif z == 1:
+                        img[x,y,z] *= 0.7152
+                    else:
+                        img[x,y,z] *= 0.0722
+                    grey_img[x,y] += img[x,y,z]
+                    if grey_img[x,y] <= 0.0031308:
+                        grey_img[x,y] *= 12.92
+                    else:
+                        grey_img[x,y] = 1.055*(grey_img[x,y]**(1/2.4)) - 0.055
                 else:
-                    img[x,y,z] = ((img[x,y,z] + 0.055)/1.055)**2.4
-                if z == 0:
-                    img[x,y,z] *= 0.2126
-                elif z == 1:
-                    img[x,y,z] *= 0.7152
-                else:
-                    img[x,y,z] *= 0.0722
-                grey_img[x,y] += img[x,y,z]
-            if grey_img[x,y] <= 0.0031308:
-                grey_img[x,y] *= 12.92
-            else:
-                grey_img[x,y] = 1.055*(grey_img[x,y]**(1/2.4)) - 0.055
-
+                    grey_img[x,y] = img[x,y,z]
     return grey_img
 
-img_compressed, pca, img_pca = compress(img, 1)
+img_compressed, pca, img_pca = compress(img, 1, True)
 grey_img = convert_to_greyscale(img_compressed)
 grey = np.dstack((grey_img, grey_img, grey_img))
 
 plt.axis(False)
 plt.imshow(grey)
-plt.savefig(filenameshort + "grey_pca.png", bbox_inches='tight')
+plt.savefig(filenameshort + "grey_pca2.png", bbox_inches='tight')
 
-grey_img_orig = convert_to_greyscale(img_copy)
-grey_orig = np.dstack((grey_img_orig, grey_img_orig, grey_img_orig))
+# grey_img_orig = convert_to_greyscale(img_copy)
+# grey_orig = np.dstack((grey_img_orig, grey_img_orig, grey_img_orig))
 
-plt.axis(False)
-plt.imshow(grey_orig)
-plt.savefig(filenameshort + "grey_orig.png", bbox_inches='tight')
+# plt.axis(False)
+# plt.imshow(grey_orig)
+# plt.savefig(filenameshort + "grey_orig.png", bbox_inches='tight')
 
 size_compare(img, grey_img, pca, img_pca)
